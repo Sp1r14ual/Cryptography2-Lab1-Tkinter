@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter.messagebox import showerror, showwarning, showinfo
+from collections import Counter
 from trial_division import trial_division
 from sieve import sieve
 from pollards import factorize
@@ -44,8 +45,13 @@ def click_button():
 
     calculated, time, iter_count = factorize(n)
 
-    with open("output.txt", mode="w") as output_file:
-        output_file.write(" ".join(map(str, calculated)))
+    with open("output.txt", mode="w", encoding="utf-8") as output_file:
+        output_file.write(
+            str(n) + " = " + " * ".join(map(str, calculated)) + "\n")
+        counter = Counter(calculated)
+        for el in counter:
+            output_file.write(f"Степень вхождения множителя {
+                              el} в разложение {n}: {counter[el]}\n")
 
     time_entry.delete(0, END)
     iter_count_entry.delete(0, END)
