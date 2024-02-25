@@ -1,7 +1,9 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter.messagebox import showerror, showwarning, showinfo
-from pollards import pollards_p_minus_1
+from trial_division import trial_division
+from sieve import sieve
+from pollards import factorize
 
 
 def click_button():
@@ -9,26 +11,17 @@ def click_button():
     n_file = None
     n = None
 
-    p_filename = p_entry.get()
-    p_file = None
-    p = None
-
     try:
         if not (".txt" in n_filename):
             raise FileExistsError("Некорректное имя файла со значением n")
 
-        if not (".txt" in p_filename):
-            raise FileExistsError("Некорректное имя файла со значением p")
-
         try:
             n_file = open(n_filename, "r")
-            p_file = open(p_filename, "r")
         except:
-            raise FileNotFoundError("Не удалось открыть файл(ы)")
+            raise FileNotFoundError("Не удалось открыть файл")
 
         try:
             n = int(n_file.read())
-            p = int(p_file.read())
         except:
             raise ValueError("Некорректные входные данные")
 
@@ -36,10 +29,29 @@ def click_button():
         showerror("Ошибка", str(E))
         return
 
-    result = pollards_p_minus_1(n, p)
+    mode = AlgoOption.get()
+
+    is_prime = None
+
+    if mode == "TrialDivision":
+        is_prime = trial_division(n)
+    else:
+        is_prime = sieve(n)
+
+    if is_prime:
+        showwarning("Внимание", "Введенное число является простым")
+        return
+
+    calculated, time, iter_count = factorize(n)
 
     with open("output.txt", mode="w") as output_file:
-        output_file.write(str(result))
+        output_file.write(" ".join(map(str, calculated)))
+
+    time_entry.delete(0, END)
+    iter_count_entry.delete(0, END)
+
+    time_entry.insert(0, time)
+    iter_count_entry.insert(0, iter_count)
 
     showinfo("Выполнено", "Результат работы программы записан в файл output.txt")
 
@@ -48,7 +60,7 @@ def click_button():
 
 root = Tk()
 root.title("Pollard's p − 1 algorithm")
-root.geometry("400x400+200+150")
+root.geometry("400x500+200+150")
 
 root.resizable(False, False)
 
@@ -58,13 +70,34 @@ n_label.pack(pady=10)
 n_entry = ttk.Entry(justify=CENTER)
 n_entry.pack()
 
-p_label = ttk.Label(text="Файл со значением p", font=("Arial", 14))
-p_label.pack(pady=10)
+primary_check_label = ttk.Label(
+    text="Алгоритм проверки на простоту", font=("Arial", 14))
+primary_check_label.pack(pady=10)
 
-p_entry = ttk.Entry(justify=CENTER)
-p_entry.pack()
+AlgoOption = StringVar(value="TrialDivision")
+
+TrialDivisionOption = ttk.Radiobutton(
+    text="Метод пробных делений", value="TrialDivision", variable=AlgoOption)
+TrialDivisionOption.pack(ipady=5)
+
+SieveOption = ttk.Radiobutton(
+    text="Решето Эратосфена", value="Sieve", variable=AlgoOption)
+SieveOption.pack()
 
 btn = ttk.Button(text="Пуск", command=click_button)
 btn.pack(pady=10)
+
+time_label = ttk.Label(text="Время работы алгоритма", font=("Arial", 14))
+time_label.pack(pady=10)
+
+time_entry = ttk.Entry(justify=CENTER)
+time_entry.pack()
+
+iter_count_label = ttk.Label(
+    text="Количество итераций основного цикла", font=("Arial", 14))
+iter_count_label.pack(pady=10)
+
+iter_count_entry = ttk.Entry(justify=CENTER)
+iter_count_entry.pack()
 
 root.mainloop()
