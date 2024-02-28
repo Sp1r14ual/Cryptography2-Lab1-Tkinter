@@ -50,8 +50,8 @@ def click_button():
             str(n) + " = " + " * ".join(map(str, calculated)) + "\n")
         counter = Counter(calculated)
         for el in counter:
-            output_file.write(f"Степень вхождения множителя {
-                              el} в разложение {n}: {counter[el]}\n")
+            output_file.write(
+                f"Степень вхождения множителя {el} в разложение {n}: {counter[el]}\n")
 
     time_entry.delete(0, END)
     iter_count_entry.delete(0, END)
