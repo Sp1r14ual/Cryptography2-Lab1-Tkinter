@@ -23,6 +23,8 @@ def click_button():
 
         try:
             n = int(n_file.read())
+            if (n % 2 == 0):
+                raise ValueError
         except:
             raise ValueError("Некорректные входные данные")
 
